@@ -12,7 +12,7 @@ sendChat('RM2 Movement Calculator API', 'Thanks for using RM2 MMC! type <code>!m
  * The core functionality of the script. Intercepts API messages meant for it, extracts the core of the command, and passes it to
  * the appropriate function for handling.
  */
-on('chat:message', function (msg) {
+export on('chat:message', function (msg) {
 
     if (msg.type != 'api') return;
 
@@ -30,13 +30,11 @@ on('chat:message', function (msg) {
     if (skill == undefined) skill = "0";
     log(skill);
 
-    var baseRate =
+    var baseRate = parts[4];
 
     log(msg.content.indexOf(apiWake));
 
     var message =  msg.content.split(' ').slice(2).join(' ');
-
-   var extraordinaryResultMessage = '';
 
 
     // theme
@@ -56,11 +54,12 @@ on('chat:message', function (msg) {
 
         log('***********************************');
 
-        var rollResult = performRoll(msg, null, true);
-        var skillResult = parseInt(eval(skill));
-        var total = parseInt(rollResult.total) + skillResult;
+        //var rollResult = performRoll(msg, null, true);
+        //var skillResult = parseInt(eval(skill));
+        //var total = parseInt(rollResult.total) + skillResult;
+        var moveResult = movementCost(5, hexes, baseRate, pace, skill);
 
-        log(rollResult.history);
+        //log(rollResult.history);
 
         var player = getObj("player", msg.playerid);
         // var outHTML = buildHTML2(rollResult, msg.content,  player.get('color'));
@@ -74,113 +73,11 @@ on('chat:message', function (msg) {
 
         var strHTML = "<hr>";
         strHTML += "      <div>";
-        strHTML += "        " +  msg.content
+        strHTML += "        " +  msg.content +"<br>"
+        strHTML += "        " + moveResult.move+"<br>"
+        strHTML += "        " + moveResult.msg+"<br>"
         strHTML += "      <\/div>";
 
-        strHTML += "  <table width=\"100%\" border=\"0\" cellpadding=\"5\" cellspacing=\"0\" style=\"border-collapse:collapse;border:1px solid Black;color:black;font-family:arial,helvetica,sans-serif;\">";
-        strHTML += "    <tbody>";
-
-        if (message) {
-
-            strHTML += "      <tr>";
-            strHTML += "        <td colspan=\"3\" style=\"padding:5px;background-color:" + top + ";color:White;font-size:120%;font-weight: bold;text-align:left;\">Roll:  " + message + " <\/td>";
-            strHTML += "      <\/tr>";
-
-            }else{
-
-            strHTML += "      <tr>";
-            strHTML += "        <td colspan=\"3\" style=\"padding:5px;background-color:" + top + ";color:White;font-size:120%;font-weight: bold;text-align:left;\">Roll Results<\/td>";
-            strHTML += "      <\/tr>";
-
-        }
-
-
-
-        var openEndedTotal = 0;
-        var openEndedString = "";
-
-        _.each(rollResult.history, function (item, idx) {
-
-            if (item.type == 1) {
-                strHTML += "      <tr>";
-
-
-                if (idx > 0)
-                    strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\">Next Roll<\/td>";
-                else
-                    strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\">Initial Roll<\/td>";
-
-                strHTML += "        <td style=\"white-space:nowrap;\">" + item.roll + "<\/td>";
-                strHTML += "        <td style=\"white-space:nowrap;\">" + item.message + "<\/td>";
-                strHTML += "      <\/tr>";
-            }
-
-            if (rollResult.fumble) {
-                openEndedString += item.roll + " - ";
-                openEndedTotal -= item.roll
-            }
-            else {
-                openEndedString += item.roll + " + ";
-                openEndedTotal += item.roll
-            }
-
-        });
-
-        openEndedString = openEndedString.substring(0, openEndedString.length - 3);
-
-        if (rollResult.fumble) {
-
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\">   <\/td>";
-            strHTML += "        <td colspan=\"2\" style=\"padding:5px;background-color:" + failure + " ;font-weight: bold;color:White;font-size:120%;text-align:left;\">Fumble Results<\/td>";
-            strHTML += "      <\/tr>";
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\"> ( - " + openEndedString + " + " + skillResult + " )   <\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;background-color:" + result + ";color:" + resultFont + "\">" + (skillResult + openEndedTotal) + "<\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;background-color:" + result + ";color:" + resultFont + "\">With Skill<\/td>";
-            strHTML += "      <\/tr>";
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\"> ( - " + openEndedString + " )   <\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;\">" + (openEndedTotal) + "<\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;\">Without Skill<\/td>";
-            strHTML += "      <\/tr>";
-
-
-
-
-        } else {
-
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\">   <\/td>";
-            strHTML += "        <td colspan=\"2\" style=\"padding:5px;background-color:" + success + " ;font-weight: bold;color:black;font-size:120%;text-align:left;\">Outcome<\/td>";
-            strHTML += "      <\/tr>";
-
-
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\"> (  " + openEndedString + " + " + skillResult + " )   <\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;background-color:" + result + ";color:" + resultFont + "\">" + (skillResult + openEndedTotal) + "<\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;background-color:" + result + ";color:" + resultFont + "\">With Skill<\/td>";
-            strHTML += "      <\/tr>";
-
-            strHTML += "      <tr>";
-            strHTML += "        <td style=\"text-align:center;background-color:" + left + ";color:White;white-space:nowrap;\"> (  " + openEndedString + " )   <\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;\">" + (openEndedTotal) + "<\/td>";
-            strHTML += "        <td style=\"white-space:nowrap;\">Without Skill<\/td>";
-            strHTML += "      <\/tr>";
-
-        }
-
-
-
-        strHTML += "    <\/tbody>";
-        strHTML += "  <\/table>";
-
-        strHTML += "  <hr>";
 
         // // Passes the final, formatted HTML as a direct message to the chat window.
         sendChat(msg.who, '/direct ' + strHTML);
@@ -188,538 +85,826 @@ on('chat:message', function (msg) {
 }); // on
 
 
-function performRoll(msg, previousRoll, canRollLow) {
+function manueverLookup(pace, skill) {
+  var rollResult = performRoll(null, true, null) + skill;
+  var extraordinaryResultMessage = '';
 
-    var rollResult = {
-        total: 0,
-        fumble: false,
-        history: []
-    };
-
-    log(previousRoll);
-    var previousTotal = 0;
-    if (previousRoll) previousTotal = previousRoll.total;
-    log(previousTotal);
-
-    rollResult.total = randomInteger(100);
-
-    rollResult.history.push({
-        type: 1,
-        roll: rollResult.total,
-        message: ''
-    });
-
-
-    if (rollResult.total < 6 && canRollLow) {
-
-        rollResult.history[rollResult.history.length - 1].message = 'You Fumbled';
-
-        rollResult.fumble = true;
-        var newResult = performRoll(msg, rollResult, false);
-        rollResult.history.push.apply(rollResult.history, newResult.history);
-        rollResult.total += newResult.total;
-
-        return rollResult;
-
-    }
-
-    if (rollResult.total == 66 && canRollLow) {
-
-        rollResult.history[rollResult.history.length - 1].message = 'Death Roll';
-
-    }
-
-    if (rollResult.total > 95) {
-
-
-        rollResult.history[rollResult.history.length - 1].message = 'Rolling Over';
-
-
-        var newResult = performRoll(msg, rollResult, false);
-        rollResult.history.push.apply(rollResult.history, newResult.history);
-        rollResult.total += newResult.total;
-
-
-    }
-
-    return rollResult;
-
-
-} // performRoll
-
-//walk 3 75 55
-function getMovementCost(pace, hexes, sprintSkill, baseRate ) {
-
-  var cost =
-  var paceEnum = {
-      WALK: 0,
-      JOG: 1,
-      RUN: 2,
-      SPRINT: 3,
-      FSPRINT: 4,
-      DASH: 5,
-      properties: {
-        0: {name: "walk", speed: 1},
-        1: {name: "jog", speed: 1.5},
-        2: {name: "run", speed: 2},
-        3: {name: "sprint", speed: 3},
-        4: {name: "fsprint", speed: 4},
-        5: {name: "dash", speed: 5}
-      }
-  }
-} //getMovementCost
-
-function manueverLookup(pace) {
-  rollResult = 
   switch (pace) {
     case 'walk':
       if(rollResult < -201) {
         extraordinaryResultMessage = 'Fall down. You take +2 Hits. Fall. Knock self out. You are out 3 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
 
       if((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fail to Act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
 
-      if((rollResult >= -150) && (rollResult <= -101)) return 0.10;
-      if((rollResult >= -100) && (rollResult <= -51)) return 0.30;
-      if((rollResult >= -50) && (rollResult <= -26)) return 0.50;
-      if((rollResult >= -25) && (rollResult <= -0)) return 0.70;
-      if((rollResult >= 1) && (rollResult <= 20)) return 0.80;
-      if((rollResult >= 21) && (rollResult <= 40)) return 0.90;
-      if((rollResult >= 41) && (rollResult <= 95)) return 1.0;
-      if((rollResult >= 96) && (rollResult <= 115)) return 1.10;
-      if((rollResult >= 116) && (rollResult <= 135)) return 1.20;
-      if((rollResult >= 136) && (rollResult <= 155)) return 1.30;
-      if((rollResult >= 156) && (rollResult <= 185)) return 1.40;
-      if((rollResult >= 186) && (rollResult <= 275)) return 1.50;
+      if((rollResult >= -150) && (rollResult <= -101)) return {
+        moveCost: 0.1,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= -100) && (rollResult <= -51)) return{
+        moveCost: 0.3,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= -50) && (rollResult <= -26)) return {
+        moveCost: 0.5,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= -25) && (rollResult <= -0)) return {
+        moveCost: 0.7,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 1) && (rollResult <= 20)) return {
+        moveCost: 0.8,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 21) && (rollResult <= 40)) return {
+        moveCost: 0.9,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 41) && (rollResult <= 95)) return {
+        moveCost: 1.0,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 96) && (rollResult <= 115)) return {
+        moveCost: 1.1,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 116) && (rollResult <= 135)) return {
+        moveCost: 1.2,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 136) && (rollResult <= 155)) return {
+        moveCost: 1.3,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 156) && (rollResult <= 185)) return {
+        moveCost: 1.4,
+        text: extraordinaryResultMessage
+      };
+
+      if((rollResult >= 186) && (rollResult <= 275)) return {
+        moveCost: 1.5,
+        text: extraordinaryResultMessage
+      };
+
       if(rollResult > 275) {
         extraordinaryResultMessage = 'Incredible move. You feel great. Get back 3 hits';
-        return 1.5;
+        return {
+          moveCost: 1.5,
+          text: extraordinaryResultMessage
+        };
       }
+
       break;
     case 'jog':
       if (rollResult < -201) {
         extraordinaryResultMessage = 'Fall. Knock self out. You are out for 12 rounds. You take +9 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fall down. Lose 2 rounds. You take +2 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -150) && (rollResult <= -101)) {
         extraordinaryResultMessage = 'Fail to act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -100) && (rollResult <= -51)) {
         extraordinaryResultMessage = '';
-        return 0.10;
+        return {
+          moveCost: 0.1,
+          text: extraordinaryResultMessage
+        };
       }
       if((rollResult >= -50) && (rollResult <= -26)) {
              extraordinaryResultMessage = '';
-             return 0.3;
+             return {
+               moveCost: 0.3,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= -25) && (rollResult <= 0)) {
              extraordinaryResultMessage = '';
-             return 0.5;
+             return {
+               moveCost: 0.5,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 1) && (rollResult <= 20)) {
              extraordinaryResultMessage = '';
-             return 0.6;
+             return {
+               moveCost: 0.6,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 21) && (rollResult <= 40)) {
              extraordinaryResultMessage = '';
-             return 0.7;
+             return {
+               moveCost: 0.7,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 41) && (rollResult <= 55)) {
              extraordinaryResultMessage = '';
-             return 0.8;
+             return {
+               moveCost: 0.8,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 56) && (rollResult <= 65)) {
              extraordinaryResultMessage = '';
-             return 0.9;
+             return {
+               moveCost: 0.9,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 66) && (rollResult <= 105)) {
              extraordinaryResultMessage = '';
-             return 1.0;
+             return {
+               moveCost: 1.0,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 106) && (rollResult <= 125)) {
              extraordinaryResultMessage = '';
-             return 1.1;
+             return {
+               moveCost: 1.1,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 126) && (rollResult <= 145)) {
              extraordinaryResultMessage = '';
-             return 1.2;
+             return {
+               moveCost: 1.2,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 146) && (rollResult <= 165)) {
              extraordinaryResultMessage = '';
-             return 1.3;
+             return {
+               moveCost: 1.3,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 166) && (rollResult <= 225)) {
              extraordinaryResultMessage = '';
-             return 1.4;
+             return {
+               moveCost: 1.4,
+               text: extraordinaryResultMessage
+             };
       }
       if((rollResult >= 226) && (rollResult <= 275)) {
              extraordinaryResultMessage = 'Incredible move. You feel great. Get back 3 hits.';
-             return 1.4;
+             return {
+               moveCost: 1.4,
+               text: extraordinaryResultMessage
+             };
       }
       if(rollResult >= 276) {
              extraordinaryResultMessage = 'Brilliant move. Move inspires all. Allies are at +10 for 3 rounds.';
-             return 1.4;
+             return {
+               moveCost: 1.4,
+               text: extraordinaryResultMessage
+             };
       }
       break;
   case 'run':
       if (rollResult < -201) {
         extraordinaryResultMessage = 'Fall. Break arms. You are out for 6 rounds. You take +10 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fall down. You take +3 hits. You are out for 4 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -150) && (rollResult <= -101)) {
         extraordinaryResultMessage = 'Fall down. You take +2 hits. You are out for 2 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -100) && (rollResult <= -51)) {
         extraordinaryResultMessage = 'Fail to act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -50) && (rollResult <= -26)) {
         extraordinaryResultMessage = '';
-        return 0.1;
+        return {
+          moveCost: 0.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -25) && (rollResult <= 0)) {
         extraordinaryResultMessage = '';
-        return 0.3;
+        return {
+          moveCost: 0.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 1) && (rollResult <= 20)) {
         extraordinaryResultMessage = '';
-        return 0.5;
+        return {
+          moveCost: 0.5,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 21) && (rollResult <= 40)) {
         extraordinaryResultMessage = '';
-        return 0.6;
+        return {
+          moveCost: 0.6,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 41) && (rollResult <= 55)) {
         extraordinaryResultMessage = '';
-        return 0.7;
+        return {
+          moveCost: 0.7,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 56) && (rollResult <= 65)) {
         extraordinaryResultMessage = '';
-        return 0.8;
+        return {
+          moveCost: 0.8,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 66) && (rollResult <= 75)) {
         extraordinaryResultMessage = '';
-        return 0.9;
+        return {
+          moveCost: 0.9,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 76) && (rollResult <= 115)) {
         extraordinaryResultMessage = '';
-        return 1.0;
+        return {
+          moveCost: 1.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 116) && (rollResult <= 135)) {
         extraordinaryResultMessage = '';
-        return 1.1;
+        return {
+          moveCost: 1.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 136) && (rollResult <= 165)) {
         extraordinaryResultMessage = '';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 166) && (rollResult <= 165)) {
         extraordinaryResultMessage = '';
-        return 1.3;
+        return {
+          moveCost: 1.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 186) && (rollResult <= 225)) {
         extraordinaryResultMessage = 'Great move. You feel better. Get back +4 hits.';
-        return 1.3;
+        return {
+          moveCost: 1.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 226) && (rollResult <= 275)) {
         extraordinaryResultMessage = 'Move inspires all. You are unstunned. Allies are at +10 for 2 rounds.';
-        return 1.3;
+        return {
+          moveCost: 1.3,
+          text: extraordinaryResultMessage
+        };
       }
       if (rollResult >= 276) {
         extraordinaryResultMessage = 'Move inspires your allies. +20 to friendly rolls for 2 rounds.';
-        return 1.3;
+        return {
+          moveCost: 1.3,
+          text: extraordinaryResultMessage
+        };
       }
       break;
     case 'sprint':
       if (rollResult < -201) {
         extraordinaryResultMessage = 'Fall. Break arm. You are out for 9 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fall. Break wrist. You take +10 hits. You are out for 6 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -150) && (rollResult <= -101)) {
         extraordinaryResultMessage = 'Fall down. Sprain ankle. You are at -25. You take +6 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -100) && (rollResult <= -51)) {
         extraordinaryResultMessage = 'Fall down. Lose 2 rounds. You take +3 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -50) && (rollResult <= -26)) {
         extraordinaryResultMessage = 'Fail to act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -25) && (rollResult <= 0)) {
         extraordinaryResultMessage = '';
-        return 0.05;
+        return {
+          moveCost: 0.05,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 1) && (rollResult <= 20)) {
         extraordinaryResultMessage = '';
-        return 0.1;
+        return {
+          moveCost: 0.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 21) && (rollResult <= 40)) {
         extraordinaryResultMessage = '';
-        return 0.2;
+        return {
+          moveCost: 0.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 41) && (rollResult <= 55)) {
         extraordinaryResultMessage = '';
-        return 0.3;
+        return {
+          moveCost: 0.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 56) && (rollResult <= 65)) {
         extraordinaryResultMessage = '';
-        return 0.4;
+        return {
+          moveCost: 0.4,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 66) && (rollResult <= 75)) {
         extraordinaryResultMessage = '';
-        return 0.5;
+        return {
+          moveCost: 0.5,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 76) && (rollResult <= 85)) {
         extraordinaryResultMessage = '';
-        return 0.6;
+        return {
+          moveCost: 0.6,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 86) && (rollResult <= 95)) {
         extraordinaryResultMessage = '';
-        return 0.7;
+        return {
+          moveCost: 0.7,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 96) && (rollResult <= 105)) {
         extraordinaryResultMessage = '';
-        return 0.8;
+        return {
+          moveCost: 0.8,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 106) && (rollResult <= 115)) {
         extraordinaryResultMessage = '';
-        return 0.9;
+        return {
+          moveCost: 0.9,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 116) && (rollResult <= 135)) {
         extraordinaryResultMessage = '';
-        return 1.0;
+        return {
+          moveCost: 1.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 136) && (rollResult <= 145)) {
         extraordinaryResultMessage = '';
-        return 1.1;
+        return {
+          moveCost: 1.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 146) && (rollResult <= 165)) {
         extraordinaryResultMessage = '';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 166) && (rollResult <= 185)) {
         extraordinaryResultMessage = 'Super move. You feel great. Get back +4 hits.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 186) && (rollResult <= 225)) {
         extraordinaryResultMessage = 'Move inspires all. You are unstunned. Allies are at +10 for 2 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 226) && (rollResult <= 275)) {
         extraordinaryResultMessage = 'Move inspires your allies. +20 to friendly rolls for 2 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if (rollResult >= 276) {
         extraordinaryResultMessage = 'Move inspires your allies. +25 to friendly rolls for 3 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       break;
     case 'fsprint':
       if (rollResult < -201) {
         extraordinaryResultMessage = 'Fall. Break arms. You are out for 18 rounds. Arms are useless.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fall. Break leg. You take +20 hits. You are out for 9 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -150) && (rollResult <= -101)) {
         extraordinaryResultMessage = 'Fall down. Break arm. You take +10 hits. You are out 6 rounds, and stunned for 3 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -100) && (rollResult <= -51)) {
         extraordinaryResultMessage = 'Fall down. Sprain ankle. You are at -25. You take +5 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -50) && (rollResult <= -26)) {
         extraordinaryResultMessage = 'Fall down. You take +5 hits. You are out 3 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -25) && (rollResult <= 0)) {
         extraordinaryResultMessage = 'Fail to act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 1) && (rollResult <= 20)) {
         extraordinaryResultMessage = '';
-        return 0.05;
+        return {
+          moveCost: 0.05,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 21) && (rollResult <= 40)) {
         extraordinaryResultMessage = '';
-        return 0.1;
+        return {
+          moveCost: 0.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 41) && (rollResult <= 55)) {
         extraordinaryResultMessage = '';
-        return 0.2;
+        return {
+          moveCost: 0.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 56) && (rollResult <= 65)) {
         extraordinaryResultMessage = '';
-        return 0.3;
+        return {
+          moveCost: 0.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 66) && (rollResult <= 75)) {
         extraordinaryResultMessage = '';
-        return 0.4;
+        return {
+          moveCost: 0.4,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 76) && (rollResult <= 85)) {
         extraordinaryResultMessage = '';
-        return 0.5;
+        return {
+          moveCost: 0.5,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 86) && (rollResult <= 95)) {
         extraordinaryResultMessage = '';
-        return 0.6;
+        return {
+          moveCost: 0.6,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 96) && (rollResult <= 105)) {
         extraordinaryResultMessage = '';
-        return 0.7;
+        return {
+          moveCost: 0.7,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 106) && (rollResult <= 115)) {
         extraordinaryResultMessage = '';
-        return 0.8;
+        return {
+          moveCost: 0.8,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 116) && (rollResult <= 125)) {
         extraordinaryResultMessage = '';
-        return 0.9;
+        return {
+          moveCost: 0.9,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 126) && (rollResult <= 145)) {
         extraordinaryResultMessage = '';
-        return 1.0;
+        return {
+          moveCost: 1.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 146) && (rollResult <= 155)) {
         extraordinaryResultMessage = '';
-        return 1.1;
+        return {
+          moveCost: 1.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 156) && (rollResult <= 165)) {
         extraordinaryResultMessage = '';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 166) && (rollResult <= 185)) {
         extraordinaryResultMessage = 'Excellent move. You are unstunned. +10 to allies rolls for 2 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 186) && (rollResult <= 225)) {
         extraordinaryResultMessage = 'Move inspires your allies. +20 to friendly rolls for 3 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 226) && (rollResult <= 275)) {
         extraordinaryResultMessage = 'Move inspires your allies. +25 to friendly rolls for 3 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if (rollResult >= 276) {
         extraordinaryResultMessage = 'Move inspires your allies. +30 to friendly rolls for 3 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       break;
     case 'dash':
       if (rollResult < -201) {
         extraordinaryResultMessage = 'Fall. Break both arms and neck. You are out for 60 rounds. You take +30 hits.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -200) && (rollResult <= -151)) {
         extraordinaryResultMessage = 'Fall. Break arms. You take +30 hits. You are out for 18 rounds. Arms are useless.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -150) && (rollResult <= -101)) {
         extraordinaryResultMessage = 'Fall down. Break leg. You take +15 hits. You are out 6 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -100) && (rollResult <= -51)) {
         extraordinaryResultMessage = 'Fall. Break wrist. You are out for 2 rounds. Not very smooth.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -50) && (rollResult <= -26)) {
         extraordinaryResultMessage = 'Fall. Sprain ankle and tear ligament. You take +15 hits. You are at -30.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= -25) && (rollResult <= 0)) {
         extraordinaryResultMessage = 'Fall down. You take +5 hits. You are out for 3 rounds.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 1) && (rollResult <= 20)) {
         extraordinaryResultMessage = 'Fail to act.';
-        return 0.0;
+        return {
+          moveCost: 0.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 21) && (rollResult <= 40)) {
         extraordinaryResultMessage = '';
-        return 0.05;
+        return {
+          moveCost: 0.05,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 41) && (rollResult <= 55)) {
         extraordinaryResultMessage = '';
-        return 0.1;
+        return {
+          moveCost: 0.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 56) && (rollResult <= 65)) {
         extraordinaryResultMessage = '';
-        return 0.2;
+        return {
+          moveCost: 0.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 66) && (rollResult <= 75)) {
         extraordinaryResultMessage = '';
-        return 0.3;
+        return {
+          moveCost: 0.3,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 76) && (rollResult <= 85)) {
         extraordinaryResultMessage = '';
-        return 0.4;
+        return {
+          moveCost: 0.4,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 86) && (rollResult <= 95)) {
         extraordinaryResultMessage = '';
-        return 0.5;
+        return {
+          moveCost: 0.5,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 96) && (rollResult <= 105)) {
         extraordinaryResultMessage = '';
-        return 0.6;
+        return {
+          moveCost: 0.6,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 106) && (rollResult <= 115)) {
         extraordinaryResultMessage = '';
-        return 0.7;
+        return {
+          moveCost: 0.7,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 116) && (rollResult <= 125)) {
         extraordinaryResultMessage = '';
-        return 0.8;
+        return {
+          moveCost: 0.8,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 126) && (rollResult <= 145)) {
         extraordinaryResultMessage = '';
-        return 0.9;
+        return {
+          moveCost: 0.9,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 146) && (rollResult <= 155)) {
         extraordinaryResultMessage = '';
-        return 1.0;
+        return {
+          moveCost: 1.0,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 156) && (rollResult <= 165)) {
         extraordinaryResultMessage = '';
-        return 1.1;
+        return {
+          moveCost: 1.1,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 166) && (rollResult <= 185)) {
         extraordinaryResultMessage = '';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 186) && (rollResult <= 225)) {
         extraordinaryResultMessage = 'Move inspires your allies. +30 to friendly rolls for 2 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if ((rollResult >= 226) && (rollResult <= 275)) {
         extraordinaryResultMessage = 'Move inspires your allies. +30 to friendly rolls for 3 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       if (rollResult >= 276) {
         extraordinaryResultMessage = 'Move inspires your allies. +30 to friendly rolls for 4 rounds.';
-        return 1.2;
+        return {
+          moveCost: 1.2,
+          text: extraordinaryResultMessage
+        };
       }
       break;
     default:
@@ -728,13 +913,20 @@ function manueverLookup(pace) {
   }
 }
 
-function movementCost(hexSize, hexes, baseRate, pace, manueverRoll) {
+function movementCost(hexSize, hexes, baseRate, pace, skill) {
   var initInARound = 200;
   var initCostPerFoot = initInARound / baseRate;
   var initCostPerHex = initCostPerFoot * hexSize;
   var initCostWithPace = initCostPerHex * getPaceRate(pace);
-  var initCostWithManuever = initCostWithPace / manueverLookup(pace, manueverRoll);
-  return initCostWithManuever * hexes;
+  var manueverResult = manueverLookup(pace, skill);
+  var initCostWithManuever = initCostWithPace / manueverResult.moveCost;
+  var finalMoveCost =  initCostWithManuever * hexes;
+
+  return {
+    msg: manueverResult.text,
+    move: finalMoveCost
+  };
+
 
 }
 
@@ -754,4 +946,73 @@ function getPaceRate(pace) {
     case 'dash': return 5;
       break;
   }
+}
+
+function performRoll( previousRoll, canRollLow, loggerFunction) {
+
+  var rollResult = {
+    total: 0,
+    fumble: false,
+    history: []
+  };
+
+  if(loggerFunction)  loggerFunction(previousRoll);
+
+  var previousTotal = 0;
+
+  if (previousRoll) previousTotal = previousRoll.total;
+
+  if(loggerFunction) loggerFunction(previousTotal);
+
+
+  rollResult.total = this.randomInteger(100);
+
+  rollResult.history.push({
+    type: 1,
+    roll: rollResult.total,
+    message: ''
+  });
+
+
+  if (rollResult.total < 6 && canRollLow) {
+
+    rollResult.history[rollResult.history.length - 1].message = 'You Fumbled';
+
+    rollResult.fumble = true;
+    var newResult = this.performRoll( rollResult, false);
+    rollResult.history.push.apply(rollResult.history, newResult.history);
+    rollResult.total += newResult.total;
+
+    return rollResult;
+
+  }
+
+  if (rollResult.total == 66 && canRollLow) {
+
+    rollResult.history[rollResult.history.length - 1].message = 'Death Roll';
+
+  }
+
+  if (rollResult.total > 95) {
+
+
+    rollResult.history[rollResult.history.length - 1].message = 'Rolling Over';
+
+
+    var newResult = this.performRoll( rollResult, false);
+    rollResult.history.push.apply(rollResult.history, newResult.history);
+    rollResult.total += newResult.total;
+
+
+  }
+
+  return rollResult;
+
+
+} // performRoll
+
+function randomInteger(max) {
+
+  return Math.random() * (max - 1) + 1;
+
 }

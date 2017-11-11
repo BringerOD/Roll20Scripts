@@ -1,4 +1,5 @@
 import { OpenEndedRoller } from './openEndedRoller';
+import { on } from './roll20code-movement-calculator';
 import $ from 'jquery';
 
 export class App {
@@ -20,11 +21,9 @@ export class App {
 
   movement() {
     
-        let roller = new OpenEndedRoller();
+        let testResult = on("!move5 walk 3 75 55");
     
-        let result = roller.performRoll(null, true, null);
-    
-        this.jsonDataString = JSON.stringify(result, null, 2);
+        this.jsonDataString = JSON.stringify(testResult, null, 2);
     
       }
 }
