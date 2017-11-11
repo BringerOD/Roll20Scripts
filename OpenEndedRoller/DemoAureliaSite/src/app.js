@@ -16,8 +16,15 @@ export class App {
 
     this.jsonDataString = JSON.stringify(result, null, 2);
 
-
-
-    OpenEndedRoller
   }
+
+  movement() {
+    
+        let roller = new OpenEndedRoller();
+    
+        let result = roller.performRoll(null, true, null);
+    
+        this.jsonDataString = JSON.stringify(result, null, 2);
+    
+      }
 }
