@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+.vscode
+
+# Dependencies
+node_modules
+
+# Compiled files
+scripts
