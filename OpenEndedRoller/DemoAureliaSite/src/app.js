@@ -1,10 +1,11 @@
 import { OpenEndedRoller } from './openEndedRoller';
-import { on } from './roll20code-movement-calculator';
+import * as move from './movement';
 import $ from 'jquery';
 
 export class App {
   constructor() {
     this.jsonDataString = "";
+    this.movementResult = "";
   }
 
 
@@ -21,9 +22,9 @@ export class App {
 
   movement() {
     
-        let testResult = on("!move5 walk 3 75 55");
+        
     
-        this.jsonDataString = JSON.stringify(testResult, null, 2);
+        this.movementResult = move.movementCost(5,10,50,'walk',20);
     
       }
 }
