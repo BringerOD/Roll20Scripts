@@ -12,8 +12,22 @@
   
 
   <hr>
-  <button type="button" class="btn btn-primary" click.delegate="movement()">Test Movement</button>
+  <form>
+    <input type="number" id="HexSize" name="HexSize" placeholder="Hex Size (3', 5', etc.)">
+    <input type="number" id="NumOfHexes" name="numOfHexes" placeholder="Number of Hexes to move">
+    <input type="number" id="BaseRate" name="BaseRate" placeholder="Base Rate">
+    <select id="pace" name="pace">
+      <option>walk</option>
+      <option>jog</option>
+      <option>run</option>
+      <option>sprint</option>
+      <option>fsprint</option>
+      <option>dash</option>
+    </select>
+    <input type="number" id="SprintingSkill" name="SprintingSkill" placeholder="sprinting skill">
 
+  <button type="button" class="btn btn-primary" click.delegate="movement()">Test Movement</button>
+  </form>
 
   <!-- <table width="100%" border="0" cellpadding="5" cellspacing="0" style="border-collapse:collapse;border:1px solid Black;color:black;font-family:arial,helvetica,sans-serif;">
     <tbody>

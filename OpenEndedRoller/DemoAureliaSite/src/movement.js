@@ -1,7 +1,9 @@
 function manueverLookup(pace, skill) {
   
   var rollAndSkill = performRoll(null, true, null);
+  console.log('initial Manuever roll:', rollAndSkill);
   var rollAndSkill  = rollAndSkill.total + skill;
+  console.log('manuever roll with skill bonus', rollAndSkill);
   var extraordinaryResultMessage = '';
 
   switch (pace) {
@@ -829,13 +831,25 @@ function manueverLookup(pace, skill) {
 }
 
 export function movementCost(hexSize, hexes, baseRate, pace, skill) {
+  console.log('Calculating movement cost:');
+  console.log('Hex Size:', hexSize);
+  console.log('hexes to move: ', hexes);
+  console.log('base rate:', baseRate);
+  console.log('pace:', pace);
+  console.log('sprinting skill:', skill);
   var initInARound = 200;
   var initCostPerFoot = initInARound / baseRate;
+  console.log('iniCostPerFoot:', initCostPerFoot);
   var initCostPerHex = initCostPerFoot * hexSize;
+  console.log('iniCostPerHex:', initCostPerHex);
   var initCostWithPace = initCostPerHex * getPaceRate(pace);
+  console.log('iniCostWithPace:', initCostWithPace);
   var manueverResult = manueverLookup(pace, skill);
+  console.log('manueverResult:', manueverResult);
   var initCostWithManuever = initCostWithPace / manueverResult.moveCost;
+  console.log('iniCostWithManuever:', initCostWithManuever);
   var finalMoveCost = initCostWithManuever * hexes;
+  console.log('finalMoveCost:', finalMoveCost);
 
   return {
     msg: manueverResult.text,

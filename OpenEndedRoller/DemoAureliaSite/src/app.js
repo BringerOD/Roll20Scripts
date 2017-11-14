@@ -23,7 +23,7 @@ export class App {
   movement() {
     
         
-    
+        // movementCost(Hex Size, number of hexes to move, Base Rate, Pace, sprinting skill)
         let moveResult = move.movementCost(5,10,50,'walk',20);
 
         this.movementResult = JSON.stringify(moveResult, null, 2);
