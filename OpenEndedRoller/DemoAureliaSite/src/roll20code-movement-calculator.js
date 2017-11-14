@@ -12,7 +12,7 @@ sendChat('RM2 Movement Calculator API', 'Thanks for using RM2 MMC! type <code>!m
  * The core functionality of the script. Intercepts API messages meant for it, extracts the core of the command, and passes it to
  * the appropriate function for handling.
  */
-export on('chat:message', function (msg) {
+on('chat:message', function (msg) {
 
     if (msg.type != 'api') return;
 

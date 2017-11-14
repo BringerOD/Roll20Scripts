@@ -24,7 +24,9 @@ export class App {
     
         
     
-        this.movementResult = move.movementCost(5,10,50,'walk',20);
+        let moveResult = move.movementCost(5,10,50,'walk',20);
+
+        this.movementResult = JSON.stringify(moveResult, null, 2);
     
       }
 }
